@@ -1,0 +1,35 @@
+{
+  "mode": "sample",
+  "clean_dir": "/workspace/assets/sprites/run-cycle/one-cycle",
+  "total_clean": 8,
+  "sets": [
+    {
+      "count": 8,
+      "tag": "",
+      "sprites": [
+        "/workspace/assets/sprites/run-cycle/one-out/sprite/sprite_01.png",
+        "/workspace/assets/sprites/run-cycle/one-out/sprite/sprite_02.png",
+        "/workspace/assets/sprites/run-cycle/one-out/sprite/sprite_03.png",
+        "/workspace/assets/sprites/run-cycle/one-out/sprite/sprite_04.png",
+        "/workspace/assets/sprites/run-cycle/one-out/sprite/sprite_05.png",
+        "/workspace/assets/sprites/run-cycle/one-out/sprite/sprite_06.png",
+        "/workspace/assets/sprites/run-cycle/one-out/sprite/sprite_07.png",
+        "/workspace/assets/sprites/run-cycle/one-out/sprite/sprite_08.png"
+      ],
+      "strip": "/workspace/assets/sprites/run-cycle/one-out/sprite/run-strip-8.png",
+      "grid": "/workspace/assets/sprites/run-cycle/one-out/sprite/run-grid-8.png",
+      "gif": "/workspace/assets/sprites/run-cycle/one-out/sprite/run-preview-8.gif",
+      "gif_ms": 80,
+      "indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    }
+  ]
+}

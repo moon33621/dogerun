@@ -1,0 +1,15 @@
+node_modules/
+artifacts/
+screenshots/
+dist/
+dist-ssr/
+.grok/
+.vercel/
+.project_id
+*.tar.gz
+*.zip
+*.mp4
+*.log
+.env
+.env.*
+!.env.example
