@@ -71,8 +71,9 @@ const QUIPS = [
   "So close to orbit.",
 ];
 
-const RUN_SRC = Array.from({ length: 18 }, (_, i) => `/sprites/smooth-run-${i + 1}.png?v=8`);
-const JUMP_SRC = Array.from({ length: 6 }, (_, i) => `/sprites/smooth-jump-${i + 1}.png?v=5`);
+const RUN_SRC = Array.from({ length: 18 }, (_, i) => `/sprites/smooth-run-${i + 1}.png?v=9`);
+const JUMP_SRC = Array.from({ length: 24 }, (_, i) => `/sprites/smooth-jump-${i + 1}.png?v=8`);
+const IDLE_SRC = "/sprites/smooth-idle-1.png?v=1";
 
 const JUMP_V = -760;
 const GRAVITY_RISE = 1420;
@@ -202,6 +203,7 @@ export function MoonRunner() {
 
     const runImgs = RUN_SRC.map(loadImage);
     const jumpImgs = JUMP_SRC.map(loadImage);
+    const idleImg = loadImage(IDLE_SRC);
     const rockImgs = [1, 2, 3, 4].map((i) => loadImage(`/sprites/rock-${i}.png?v=1`));
     const apeImgs = [1, 2, 3, 4, 5, 6, 7, 8].map((i) => loadImage(`/sprites/ape-${i}.png?v=1`));
     const coinImg = loadImage("/sprites/coin.png?v=6");
@@ -467,7 +469,7 @@ export function MoonRunner() {
         buffer = 0;
         pose = "rise";
         poseLock = 0.08;
-        jumpT = 0;
+        jumpT = 0.2;
         floaters.push({ x: camera + feetScreen, y: y - 80, text: "DOUBLE!", life: 0.55 });
         tone(760, 0.07, "square", 0.04);
         tone(1040, 0.1, "sine", 0.05);
@@ -870,19 +872,27 @@ export function MoonRunner() {
           continue;
         }
         const magnetOn = magnet > 0 && c.kind === "coin";
-        const dx = c.x - (px + 12);
-        const dy = c.y - (y - 52);
-        const reachX = magnetOn ? 340 : 116;
-        const reachY = magnetOn ? 240 : grounded ? 86 : 180;
+        const headTop = y + 6 - 250 * 0.96;
+        const bodyBottom = y - 2;
+        const bodyLeft = px - 78;
+        const bodyRight = px + 86;
+        const aimX = px + 6;
+        const aimY = y - 130;
+        const dx = c.x - aimX;
+        const dy = c.y - aimY;
+        const reachX = magnetOn ? 340 : 150;
+        const reachY = magnetOn ? 260 : 220;
         if (Math.abs(dx) < reachX && Math.abs(dy) < reachY) {
           const pull = Math.min(1, dt * (magnetOn ? 7 : 24));
-          c.x += (px + 12 - c.x) * pull;
-          c.y += (y - 52 - c.y) * pull;
+          c.x += (aimX - c.x) * pull;
+          c.y += (aimY - c.y) * pull;
         }
-        const ndx = c.x - (px + 12);
-        const ndy = c.y - (y - 52);
-        const reach = c.kind === "coin" ? 72 : 86;
-        if (ndx * ndx + ndy * ndy < reach * reach) {
+        const coinR = c.kind === "coin" ? 44 : 50;
+        const nearX = Math.max(bodyLeft, Math.min(c.x, bodyRight));
+        const nearY = Math.max(headTop, Math.min(c.y, bodyBottom));
+        const hx = c.x - nearX;
+        const hy = c.y - nearY;
+        if (hx * hx + hy * hy <= coinR * coinR) {
           c.got = true;
           c.alive = false;
           if (c.kind === "bone") {
@@ -1360,9 +1370,9 @@ export function MoonRunner() {
         }
         const w = blendCanvas.width;
         blendCtx.clearRect(0, 0, w, w);
-        blendCtx.globalAlpha = 1 - frac;
+        blendCtx.globalAlpha = 1;
         blendCtx.drawImage(img, 0, 0, w, w);
-        blendCtx.globalAlpha = frac;
+        blendCtx.globalAlpha = frac * 0.35;
         blendCtx.drawImage(next, 0, 0, w, w);
         blendCtx.globalAlpha = 1;
         drawAnchored(blendCanvas, alpha);
@@ -1370,19 +1380,10 @@ export function MoonRunner() {
 
       const drawJump = (alpha: number) => {
         const n = jumpImgs.length;
-        let u = 0;
-        if (jumpT < 0.07) u = (jumpT / 0.07) * 1.05;
-        else if (vy < -80) {
-          const rise = Math.min(1, Math.max(0, -vy / 760));
-          u = 0.4 + (1 - rise) * 1.5;
-        } else if (vy < 240) {
-          u = 1.9 + ((vy + 80) / 320) * 0.7;
-        } else {
-          u = 2.6 + Math.min(1, (vy - 240) / 780) * 2.2;
-        }
-        u = Math.max(0, Math.min(n - 1.001, u));
-        const idx = Math.floor(u);
-        const blendAmt = u - idx;
+        const u = Math.min(1, Math.max(0, jumpT) / 0.4);
+        const pos = u * (n - 1);
+        const idx = Math.floor(pos);
+        const blendAmt = pos - idx;
         const img = jumpImgs[idx];
         const next = jumpImgs[Math.min(n - 1, idx + 1)];
         if (!img?.complete || !img.naturalWidth) {
@@ -1404,12 +1405,15 @@ export function MoonRunner() {
       };
 
       const drawPose = (p: Pose, alpha: number) => {
-        if (p === "squash") drawAnchored(jumpImgs[Math.min(4, jumpImgs.length - 1)], alpha);
+        if (p === "squash") drawAnchored(jumpImgs[jumpImgs.length - 1], alpha);
         else if (p === "run") drawRun(alpha);
         else drawJump(alpha);
       };
 
-      if (idle || pose === "run") drawRun(1);
+      if (phase === "ready") {
+        if (idleImg.complete && idleImg.naturalWidth > 0) drawAnchored(idleImg, 1);
+        else if (runImgs[0]) drawAnchored(runImgs[0], 1);
+      } else if (pose === "run") drawRun(1);
       else drawPose(pose, 1);
       if (!idle && shield) {
         ctx.save();
