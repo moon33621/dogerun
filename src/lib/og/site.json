@@ -1,5 +1,6 @@
 {
   "title": "Doge Run",
+  "description": "A golden doge in a space suit runs a coin road to the moon.",
   "type": "x:game",
   "card": "custom",
   "color": "070b18"
