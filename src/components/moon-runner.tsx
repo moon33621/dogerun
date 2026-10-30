@@ -72,10 +72,10 @@ const QUIPS = [
 ];
 
 const RUN_SRC = Array.from({ length: 18 }, (_, i) => `/sprites/smooth-run-${i + 1}.png?v=9`);
-const JUMP_SRC = Array.from({ length: 24 }, (_, i) => `/sprites/smooth-jump-${i + 1}.png?v=8`);
+const JUMP_SRC = Array.from({ length: 22 }, (_, i) => `/sprites/smooth-jump-${i + 1}.png?v=8`);
 const IDLE_SRC = "/sprites/smooth-idle-1.png?v=1";
 
-const JUMP_V = -760;
+const JUMP_V = -620;
 const GRAVITY_RISE = 1420;
 const GRAVITY_FALL = 1980;
 const FAST_CUT = 5600;
@@ -205,7 +205,6 @@ export function MoonRunner() {
     const jumpImgs = JUMP_SRC.map(loadImage);
     const idleImg = loadImage(IDLE_SRC);
     const rockImgs = [1, 2, 3, 4].map((i) => loadImage(`/sprites/rock-${i}.png?v=1`));
-    const apeImgs = [1, 2, 3, 4, 5, 6, 7, 8].map((i) => loadImage(`/sprites/ape-${i}.png?v=1`));
     const coinImg = loadImage("/sprites/coin.png?v=6");
     const earthImg = loadImage("/sprites/earth.jpg?v=3");
 
@@ -653,8 +652,8 @@ export function MoonRunner() {
         targetSx = 1.08;
       } else if (!grounded) {
         const lift = Math.max(-1, Math.min(1, -vy / 760));
-        targetSy = 1 + lift * 0.14;
-        targetSx = 1 - lift * 0.08;
+        targetSy = 1 + lift * 0.08;
+        targetSx = 1 - lift * 0.05;
       } else if (pose === "squash") {
         targetSy = 0.84;
         targetSx = 1.12;
@@ -708,6 +707,11 @@ export function MoonRunner() {
       if (dropping) gravity = vy < 80 ? FAST_CUT : FAST_FALL;
       vy = Math.min(dropping ? 1400 : 1040, vy + gravity * dt);
       y += vy * dt;
+      const ceiling = 228;
+      if (y < ceiling) {
+        y = ceiling;
+        if (vy < 0) vy = 0;
+      }
       const gY = ground();
       if (y >= gY) {
         const wasAir = !grounded;
@@ -872,7 +876,7 @@ export function MoonRunner() {
           continue;
         }
         const magnetOn = magnet > 0 && c.kind === "coin";
-        const headTop = y + 6 - 250 * 0.96;
+        const headTop = y + 6 - 200 * 0.92;
         const bodyBottom = y - 2;
         const bodyLeft = px - 78;
         const bodyRight = px + 86;
@@ -1077,35 +1081,74 @@ export function MoonRunner() {
 
       if (rocketFlight >= 0) {
         const t = rocketFlight;
-        const fade = Math.min(1, t / 0.08) * Math.min(1, (1 - t) / 0.14);
-        const aimX = moonX - earthX;
-        const aimY = moonY - earthY;
-        const aim = Math.hypot(aimX, aimY) || 1;
-        const sx0 = earthX + (aimX / aim) * earthR * 0.92;
-        const sy0 = earthY + (aimY / aim) * earthR * 0.92;
-        const sx1 = moonX - (aimX / aim) * (moonR + 8);
-        const sy1 = moonY - (aimY / aim) * (moonR + 8);
-        const px = sx0 + (sx1 - sx0) * t;
-        const py = sy0 + (sy1 - sy0) * t;
-        const ape = apeImgs[Math.floor(clock * 8) % apeImgs.length];
+        const fade = Math.min(1, t / 0.08) * Math.min(1, (1 - t) / 0.12);
+        const px = 70 + t * (view.w - 180);
+        const py = 132 + Math.sin(t * Math.PI) * -36;
         ctx.save();
         ctx.globalAlpha = fade;
         ctx.translate(px, py);
-        const flick = 0.75 + Math.abs(Math.sin(clock * 18)) * 0.4;
-        ctx.fillStyle = "#ff9a2e";
+        ctx.rotate(-0.22);
+        const flick = 0.65 + Math.abs(Math.sin(clock * 22)) * 0.55;
+        ctx.fillStyle = "#ff7a18";
         ctx.beginPath();
-        ctx.moveTo(-7, 28);
-        ctx.lineTo(0, 28 + 42 * flick);
-        ctx.lineTo(7, 28);
+        ctx.moveTo(-16, 28);
+        ctx.quadraticCurveTo(0, 28 + 54 * flick, 16, 28);
         ctx.fill();
-        ctx.fillStyle = "#fff4cc";
+        ctx.fillStyle = "#ffe08a";
         ctx.beginPath();
-        ctx.moveTo(-3, 26);
-        ctx.lineTo(0, 26 + 18 * flick);
-        ctx.lineTo(3, 26);
+        ctx.moveTo(-8, 26);
+        ctx.quadraticCurveTo(0, 26 + 28 * flick, 8, 26);
         ctx.fill();
-        const size = 230;
-        if (ape?.complete && ape.naturalWidth) ctx.drawImage(ape, -size / 2, -size * 0.78, size, size);
+        ctx.fillStyle = "#f4f7fb";
+        ctx.beginPath();
+        ctx.roundRect(-22, -46, 44, 78, 22);
+        ctx.fill();
+        ctx.fillStyle = "#e23b3b";
+        ctx.beginPath();
+        ctx.moveTo(-22, 18);
+        ctx.lineTo(-40, 40);
+        ctx.lineTo(-10, 24);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(22, 18);
+        ctx.lineTo(40, 40);
+        ctx.lineTo(10, 24);
+        ctx.fill();
+        ctx.fillStyle = "#f2c14e";
+        ctx.beginPath();
+        ctx.moveTo(0, -68);
+        ctx.lineTo(16, -28);
+        ctx.lineTo(-16, -28);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = "#9ad7ff";
+        ctx.beginPath();
+        ctx.arc(0, -8, 13, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#c9864a";
+        ctx.beginPath();
+        ctx.arc(-12, -16, 6, 0, Math.PI * 2);
+        ctx.arc(12, -16, 6, 0, Math.PI * 2);
+        ctx.arc(0, -6, 9, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#1b140f";
+        ctx.beginPath();
+        ctx.arc(-3, -8, 1.3, 0, Math.PI * 2);
+        ctx.arc(3, -8, 1.3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#1b140f";
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.arc(0, -4, 3.2, 0.2, Math.PI - 0.2);
+        ctx.stroke();
+        const wave = Math.sin(clock * 8);
+        ctx.strokeStyle = "#c9864a";
+        ctx.lineWidth = 4;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(14, 2);
+        ctx.quadraticCurveTo(28, -8 + wave * 8, 30, -18 + wave * 10);
+        ctx.stroke();
         ctx.restore();
       }
 
@@ -1335,7 +1378,7 @@ export function MoonRunner() {
       ctx.fill();
       ctx.globalAlpha = 1;
 
-      const size = 250;
+      const size = 200;
       const footGap = 6;
       const idle = phase === "ready";
       const frameCount = runImgs.length;
