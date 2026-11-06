@@ -76,8 +76,8 @@ export function SiteFrame({
           <div className="mt-5">{children}</div>
         </section>
       </div>
-      <footer className="mt-auto flex items-center justify-between border-t border-line px-4 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-        <p className="text-xs text-muted">$DRUN · BNB Chain</p>
+      <footer className="relative mt-auto flex items-center justify-center border-t border-line px-4 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+        <p className="absolute left-4 text-xs text-muted">$DRUN · BNB Chain</p>
         <SocialLinks />
       </footer>
     </main>

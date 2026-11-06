@@ -100,7 +100,6 @@ export function MoonRunner() {
   const jumpRef = useRef<() => void>(() => {});
   const sprintRef = useRef(false);
   const dropRef = useRef(false);
-  const [sprintOn, setSprintOn] = useState(false);
   const [paused, setPaused] = useState(false);
   const pausedRef = useRef(false);
   const [soundOn, setSoundOn] = useState(true);
@@ -1553,15 +1552,6 @@ export function MoonRunner() {
     };
   }, []);
 
-  const holdSprint = (on: boolean) => {
-    sprintRef.current = on;
-    setSprintOn(on);
-  };
-
-  const holdDrop = (on: boolean) => {
-    dropRef.current = on;
-  };
-
   const claimEarnings = () => {
     if (!humanKey()) {
       humanOkRef.current = false;
@@ -1901,56 +1891,12 @@ export function MoonRunner() {
           )}
         </div>
 
-        <p className="mt-2 shrink-0 text-center text-xs text-muted sm:mt-3 sm:text-sm">
+        <p className="mt-2 shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))] text-center text-xs text-muted sm:mt-3 sm:text-sm">
           {claimNote || "0.05 $DRUN per meter, 1 per coin, 3 per bone. 200 $DRUN a player each day. The treasury stops at 10,000."}
         </p>
-        <div className="mt-2 grid shrink-0 grid-cols-3 gap-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:mt-3 sm:gap-3">
-          <button
-            type="button"
-            aria-pressed={sprintOn}
-            className={`min-h-14 rounded-full border text-sm font-bold touch-none sm:text-base ${
-              sprintOn ? "border-gold bg-gold text-bg" : "border-line bg-surface text-fg"
-            }`}
-            onPointerDown={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              e.currentTarget.setPointerCapture(e.pointerId);
-              holdSprint(true);
-            }}
-            onPointerUp={() => holdSprint(false)}
-            onPointerCancel={() => holdSprint(false)}
-          >
-            {sprintOn ? "Sprinting" : "Sprint"}
-          </button>
-          <button
-            type="button"
-            className="min-h-14 rounded-full border border-line bg-surface text-sm font-bold text-fg touch-none sm:text-base"
-            onPointerDown={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              e.currentTarget.setPointerCapture(e.pointerId);
-              holdDrop(true);
-            }}
-            onPointerUp={() => holdDrop(false)}
-            onPointerCancel={() => holdDrop(false)}
-          >
-            Land
-          </button>
-          <button
-            type="button"
-            className="min-h-14 rounded-full bg-coral text-sm font-bold text-bg touch-none sm:text-base"
-            onPointerDown={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              jumpRef.current();
-            }}
-          >
-            Jump
-          </button>
-        </div>
       </section>
 
-      <footer data-no-jump className="mt-auto flex shrink-0 items-center justify-end border-t border-line px-4 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+      <footer data-no-jump className="mt-auto flex shrink-0 items-center justify-center border-t border-line px-4 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
         <SocialLinks />
       </footer>
     </main>
