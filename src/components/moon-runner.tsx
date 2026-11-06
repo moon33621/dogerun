@@ -141,6 +141,20 @@ export function MoonRunner() {
   const afterHuman = useRef<"start" | "claim" | null>(null);
 
   useEffect(() => {
+    const w = window as Window & { Tawk_API?: { customStyle?: { zIndex?: number } }; Tawk_LoadStart?: Date };
+    w.Tawk_API = w.Tawk_API || {};
+    w.Tawk_API.customStyle = { zIndex: 100000 };
+    w.Tawk_LoadStart = w.Tawk_LoadStart || new Date();
+    if (document.querySelector("script[src*='embed.tawk.to/6aedb66d3f06453c2ded993d/1k6o9188o']")) return;
+    const s1 = document.createElement("script");
+    s1.async = true;
+    s1.src = "https://embed.tawk.to/6aedb66d3f06453c2ded993d/1k6o9188o";
+    s1.charset = "UTF-8";
+    s1.setAttribute("crossorigin", "*");
+    document.body.appendChild(s1);
+  }, []);
+
+  useEffect(() => {
     try {
       const saved = localStorage.getItem(NAME_KEY);
       if (saved) {
