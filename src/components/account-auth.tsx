@@ -396,7 +396,34 @@ function TelegramLink() {
     }
   }
 
-  const pending = tg?.preview && tg.request?.status === "pending";
+  const pending = tg?.request?.status === "pending";
+  const playerOptions = [
+    { label: "Balance", text: "/balance" },
+    { label: "Claim", text: "/claim" },
+    { label: "Status", text: "/status" },
+    { label: "Reset help", text: "/reset" },
+    { label: "Player help", text: "/help" },
+  ];
+  const adminOptions = [
+    { label: "Pending", text: "/pending" },
+    { label: "Approve", text: tg?.request ? `/approve ${tg.request.id}` : "/approve" },
+    { label: "Reject", text: tg?.request ? `/reject ${tg.request.id}` : "/reject" },
+    { label: "Players", text: "/players" },
+    { label: "Admin help", text: "/admin" },
+  ];
+
+  async function press(text: string) {
+    setBusy(true);
+    setError("");
+    setInfo("");
+    try {
+      setTg(await previewTelegramCommand({ data: { text } }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "The bot didn't answer.");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <div className="grid gap-2 rounded-2xl border border-line bg-bg p-3">
@@ -432,9 +459,25 @@ function TelegramLink() {
           Link preview chat
         </button>
       )}
+      <p className="text-xs font-semibold tracking-widest text-muted uppercase">Player</p>
+      <div className="grid grid-cols-2 gap-2">
+        {playerOptions.map((option) => (
+          <button key={option.text} type="button" disabled={busy} className="theme-btn-ghost w-full" onClick={() => void press(option.text)}>
+            {option.label}
+          </button>
+        ))}
+      </div>
+      <p className="text-xs font-semibold tracking-widest text-muted uppercase">Admin</p>
+      <div className="grid grid-cols-2 gap-2">
+        {adminOptions.map((option) => (
+          <button key={option.label} type="button" disabled={busy} className="theme-btn-ghost w-full" onClick={() => void press(option.text)}>
+            {option.label}
+          </button>
+        ))}
+      </div>
       {tg?.preview && (
         <p className="text-xs leading-5 text-muted">
-          This preview has no live bot. Approve withdrawals here. On your domain, only the admin chat can.
+          Player commands check the balance and open a claim. Admin commands approve or reject that payout.
         </p>
       )}
       {tg && !tg.preview && !tg.adminReady && (
